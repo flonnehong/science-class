@@ -1,0 +1,44 @@
+/* 공통 틀 (학생용). 기존 앱에도 붙으므로 이름 앞에 sc- 를 붙인다 */
+html.sc-on,html.sc-on body{height:100%;overflow:hidden!important;margin:0;padding:0!important}
+html.sc-on body>*:not(.sc-bar):not(.sc-stage):not(.sc-foot):not(.sc-gate):not(script):not(style):not(dialog):not(.drag-clone):not(.celebrate){display:none!important}
+.sc-bar,.sc-foot,.sc-gate,.sc-gate *{box-sizing:border-box;font-family:"Noto Sans KR",system-ui,"Malgun Gothic",sans-serif}
+.sc-bar{position:fixed;top:0;left:0;right:0;height:52px;z-index:50;background:#ffd23f;color:#232046;display:flex;align-items:center;gap:10px;padding:0 12px;font-size:16px}
+.sc-home{display:inline-flex;width:38px;height:38px;border-radius:12px;background:#fff;color:#232046;align-items:center;justify-content:center;text-decoration:none;font-size:21px;flex:none}
+.sc-title{font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
+.sc-who{font-weight:700;cursor:pointer;white-space:nowrap}
+.sc-net{width:12px;height:12px;border-radius:50%;background:#d93a47;flex:none}.sc-net.ok{background:#119c4a}
+.sc-font{display:flex;align-items:center;background:#fff;border-radius:12px;overflow:hidden;flex:none}
+.sc-font button{border:0!important;background:#fff!important;color:#232046!important;font:700 15px "Noto Sans KR",sans-serif!important;padding:0 10px!important;height:38px;border-radius:0!important;cursor:pointer;min-width:42px}
+.sc-font button:disabled{opacity:.35}.sc-fs{font-size:13px;min-width:42px;text-align:center}
+.sc-clock{font:700 20px/38px ui-monospace,Consolas,monospace;background:#232046;color:#7dffb0;border-radius:12px;padding:0 12px;flex:none;font-variant-numeric:tabular-nums}
+.sc-stage{position:fixed;top:52px;bottom:68px;left:0;right:0;overflow:hidden}
+.sc-scale{position:absolute;left:0;top:0;transform-origin:0 0}
+.sc-main{max-width:none!important;margin:0!important;padding:0!important;width:100%!important}
+.sc-main>section{padding:8px 4px!important;margin:0!important}
+.sc-off,.sc-hide{display:none!important}
+.sc-foot{position:fixed;bottom:0;left:0;right:0;height:68px;z-index:50;background:#fff;color:#232046;border-top:3px solid #ffd23f;display:flex;align-items:center;gap:10px;padding:0 12px}
+.sc-mid{flex:1;min-width:0;text-align:center}
+.sc-steps{display:flex;gap:6px;justify-content:center;flex-wrap:nowrap}
+.sc-steps button{width:28px!important;height:28px;min-width:0;border-radius:50%!important;border:2px solid #c9c6dd!important;background:#fff!important;color:#58547a!important;font:700 13px "Noto Sans KR",sans-serif!important;padding:0!important;cursor:pointer}
+.sc-steps button.fin{background:#c9f5d8!important;border-color:#119c4a!important;color:#0b6b33!important}
+.sc-steps button.on{background:#232046!important;border-color:#232046!important;color:#fff!important}.sc-steps button:disabled{opacity:.4;cursor:default}
+.sc-msg{font-size:14px;font-weight:700;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc-msg.shake{animation:scsh .4s;color:#c22f3a}@keyframes scsh{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.sc-nav,.sc-stay{border:0!important;border-radius:16px!important;background:#eceaf6!important;color:#232046!important;font:700 17px "Noto Sans KR",sans-serif!important;height:48px;padding:0 18px!important;cursor:pointer;white-space:nowrap;flex:none}
+.sc-nav.main{background:#ff5a5f!important;color:#232046!important;min-width:132px}.sc-nav:disabled{opacity:.35;cursor:default}
+.sc-stay{background:#fff0b3!important}.sc-stay[hidden],.sc-gate[hidden],.sc-net[hidden]{display:none!important}
+.sc-gate{position:fixed;inset:0;z-index:60;background:#ffd23f;color:#232046;display:flex;align-items:center;justify-content:center;padding:64px 16px 16px}
+.sc-gtop{position:absolute;top:8px;left:12px;right:12px;display:flex;justify-content:space-between}
+.sc-card{background:#fff;border-radius:28px;padding:24px 26px;width:min(480px,100%);text-align:center}
+.sc-card small{font-weight:700;color:#58547a;font-size:15px}.sc-card h1{font-size:clamp(24px,5vw,32px);margin:2px 0 14px;line-height:1.25;color:#232046}
+.sc-cls{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.sc-cls button,.sc-row button{border:2px solid #dad7ea!important;background:#fff!important;color:#232046!important;border-radius:14px!important;font:700 17px "Noto Sans KR",sans-serif!important;padding:10px 12px!important;cursor:pointer}
+.sc-cls button.on{background:#232046!important;color:#fff!important;border-color:#232046!important}
+.sc-card input{width:100%;font:700 20px "Noto Sans KR",sans-serif;text-align:center;border:2px solid #dad7ea;border-radius:14px;padding:10px;background:#fff;color:#232046}
+.sc-go{width:100%;border:0!important;border-radius:16px!important;background:#ff5a5f!important;color:#232046!important;font:900 20px "Noto Sans KR",sans-serif!important;padding:13px!important;margin-top:10px;cursor:pointer}
+.sc-err{color:#c22f3a;font-weight:700;min-height:1.4em;margin:8px 0 0}.sc-note{font-size:14px;color:#58547a;margin:6px 0 0}.sc-me{font-weight:700;font-size:19px;margin:0}.sc-big{font-weight:700;font-size:20px;margin:6px 0}
+.sc-row{display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.sc-spin{width:40px;height:40px;margin:14px auto;border-radius:50%;border:5px solid #eceaf6;border-top-color:#ff5a5f;animation:scsp 1s linear infinite}@keyframes scsp{to{transform:rotate(360deg)}}
+@media (max-width:620px){.sc-title{font-size:15px}.sc-fs{display:none}.sc-font button{min-width:34px;padding:0 6px!important}.sc-clock{font-size:15px;padding:0 7px}.sc-bar{gap:6px;padding:0 8px}.sc-home{width:34px;height:34px}.sc-who{font-size:13px}.sc-nav{padding:0 10px!important;font-size:15px!important}.sc-nav.main{min-width:96px}.sc-foot{gap:6px;padding:0 8px}.sc-steps button{width:22px!important;height:22px;font-size:11px!important}.sc-steps{gap:3px}.sc-msg{font-size:12px}}
+@media (max-width:430px){.sc-title{display:none}.sc-who{flex:1}}
+@media (prefers-reduced-motion: reduce){.sc-spin{animation:none}}
