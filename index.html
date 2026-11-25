@@ -16,9 +16,9 @@ body{display:flex;flex-direction:column;background:#fffdf5;color:#232046;font-fa
 .tb{height:52px;flex:none;background:#ffd23f;display:flex;align-items:center;gap:10px;padding:0 12px;font-size:16px}.tb b{font-family:Jua,sans-serif;font-weight:400;font-size:22px;white-space:nowrap}.sp{flex:1}
 main{flex:1;min-height:0;display:flex;flex-direction:column;gap:.6em;padding:.8em}
 .tabs{display:flex;gap:.5em;flex:none;flex-wrap:wrap}.tabs button{font:700 1.05em "Noto Sans KR",sans-serif;border:0;border-radius:1em;padding:.5em 1em;background:#eceaf6;color:#232046;cursor:pointer}.tabs button.on{background:#232046;color:#fff}
-.g{flex:1;min-height:0;display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:1fr;gap:.7em}.g.few{grid-template-columns:repeat(2,1fr)}
-.g a{border-radius:1.5em;background:var(--c);color:#232046;text-decoration:none;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:.3em .6em;min-height:0;overflow:hidden;line-height:1.25}.g b{font-family:Jua,sans-serif;font-weight:400;font-size:1.45em}.g small{font-weight:700}
-@media (max-width:640px){.g,.g.few{grid-template-columns:repeat(2,1fr)}.tb b{font-size:17px}}
+.g{flex:0 1 auto;min-height:0;display:grid;grid-template-columns:repeat(4,minmax(0,18em));grid-auto-rows:minmax(0,6em);gap:.7em;justify-content:center}
+.g a{border-radius:1.1em;background:var(--c);color:#232046;text-decoration:none;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:.3em .6em;min-height:0;overflow:hidden;line-height:1.25}.g b{font-family:Jua,sans-serif;font-weight:400;font-size:1.25em}.g small{font-weight:700}
+@media (max-width:640px){.g{grid-template-columns:repeat(2,minmax(0,1fr))}.tb b{font-size:17px}}
 :focus-visible{outline:4px solid #7a5cff}
 </style>
 </head>
@@ -31,7 +31,7 @@ import { h, clock, fontControl } from "./fb.js";
 const $ = i => document.getElementById(i), f = fontControl(v => document.documentElement.style.setProperty("--fs", v), "hfont"); document.documentElement.style.setProperty("--fs", f.value);
 document.querySelector(".tb").append(f.el, clock(h("time", { class: "sc-clock", "aria-label": "지금 시각" })));
 let cur = 7; const m = /[#?&]u(?:nit)?=?([05-8])/.exec(location.hash + location.search); if (m) cur = +m[1];
-function draw() { $("tabs").textContent = ""; UNITS.forEach(u => $("tabs").append(h("button", { type: "button", class: u.n === cur ? "on" : "", onclick: () => { cur = u.n; draw(); } }, u.n ? `${u.n}단원 ${u.t}` : u.t))); const ls = LESSONS.filter(l => l.unit === cur), u = UNITS.find(x => x.n === cur); $("g").className = "g" + (ls.length < 5 ? " few" : ""); $("g").style.setProperty("--c", u.c); $("g").textContent = ""; ls.forEach(l => $("g").append(h("a", { href: l.url }, h("small", {}, /^\d+$/.test(l.no) ? l.no + "차시" : l.no), h("b", {}, l.title)))); }
+function draw() { $("tabs").textContent = ""; UNITS.forEach(u => $("tabs").append(h("button", { type: "button", class: u.n === cur ? "on" : "", onclick: () => { cur = u.n; draw(); } }, u.n ? `${u.n}단원 ${u.t}` : u.t))); const ls = LESSONS.filter(l => l.unit === cur), u = UNITS.find(x => x.n === cur); $("g").style.setProperty("--c", u.c); $("g").textContent = ""; ls.forEach(l => $("g").append(h("a", { href: l.url }, h("small", {}, /^\d+$/.test(l.no) ? l.no + "차시" : l.no), h("b", {}, l.title)))); }
 draw();
 </script>
 </body>

@@ -148,26 +148,29 @@ export function run(o) {
   function wait(title, sub, extra) { gate([h("p", { class: "sc-me" }, `2학년 ${me.cls}반 ${me.n}번`), h("div", { class: "sc-spin", "aria-hidden": true }), h("p", { class: "sc-big", role: "status" }, title), h("p", { class: "sc-note" }, sub || ""), h("div", { class: "sc-row" }, extra, h("button", { type: "button", onclick: logout }, "반·번호 바꾸기"))]); }
   async function logout() { const was = accepted; clear(); ready = false; accepted = false; ls.del("me"); ls.del("bk"); me = null; try { if (path) await update(ref(fb.db, "prog/" + path), { on: false }); } catch (e) {} try { await signOut(fb.auth); } catch (e) {} path = null; if (was) location.reload(); else form(); }
   $who.onclick = () => { if (ready && confirm("로그아웃할까요? 저장된 답은 선생님께 남아 있어요.")) { logout(); } };
-  function enter() {
-    clear(); const key = `${o.lesson}_${me.cls}`; wait("수업을 확인하는 중…");
+  async function enter() {
+    clear(); const key = `${o.lesson}_${me.cls}`, who = me; wait("수업을 확인하는 중…");
+    // 선생님이 아직 열지 않았으면 '자동 진행·자동 입장'으로 오늘 수업을 시작한다
+    const lr = ref(fb.db, "live/" + key); try { const v = (await get(lr)).val(); if (!v || !v.sid || String(v.sid).slice(0, 8) !== day()) await set(lr, { sid: day(), open: true, mode: "auto", step: 0, auto: true, t: serverTimestamp() }); } catch (e) {}
+    if (me !== who) return; clear();
     on("live/" + key, async v => {
       const good = v && v.sid && String(v.sid).slice(0, 8) === day();
       if (accepted && good && v.sid === sid) { const old = live; live = v; over = !v.open; moved(old); return; }
       if (accepted && (!good || v.sid !== sid)) { location.reload(); return; }
-      if (!good || !v.open) { live = v; wait("아직 수업이 열리지 않았어요", "선생님이 수업을 열면 자동으로 들어가요."); return; }
+      if (!good || !v.open) { live = v; wait(good ? "수업이 끝났어요" : "아직 수업이 열리지 않았어요", "선생님이 수업을 열면 자동으로 들어가요."); return; }
       live = v; if (sid !== v.sid) { sid = v.sid; path = `${key}/${sid}/${uid}`; ask(); }
     });
   }
   async function ask() {
-    wait("선생님의 수락을 기다리고 있어요", "이 화면을 그대로 두면 자동으로 넘어가요.");
-    const p = path;
+    const p = path, auto = !!live.auto;
+    if (auto) wait("들어가는 중…"); else wait("선생님의 수락을 기다리고 있어요", "이 화면을 그대로 두면 자동으로 넘어가요.");
     on("st/" + p, async s => {
       if (p !== path) return;
       if (s === "ok") { if (!accepted) begin(); }
       else if (s === "no") { if (accepted) { location.reload(); return; } wait("선생님이 수락하지 않았어요", "반과 번호가 맞는지 확인하고 선생님께 말씀드려 주세요."); }
       else if (accepted) location.reload();
     });
-    try { const s = (await get(ref(fb.db, "st/" + p))).val(); if (s !== "ok") await set(ref(fb.db, "req/" + p), { n: me.n, t: serverTimestamp() }); }
+    try { const s = (await get(ref(fb.db, "st/" + p))).val(); if (s !== "ok") await set(ref(fb.db, "req/" + p), { n: me.n, t: serverTimestamp() }); if (s === null && auto) try { await set(ref(fb.db, "st/" + p), "ok"); } catch (e) { if (p === path && !accepted) wait("선생님의 수락을 기다리고 있어요", "이 화면을 그대로 두면 자동으로 넘어가요."); } }
     catch (e) { wait("신청하지 못했어요", "잠시 뒤 다시 해 보세요.", h("button", { type: "button", onclick: ask }, "다시 신청")); }
   }
   async function begin() {
