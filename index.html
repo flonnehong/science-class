@@ -31,7 +31,7 @@ import { h, clock, fontControl } from "./fb.js";
 const $ = i => document.getElementById(i), f = fontControl(v => document.documentElement.style.setProperty("--fs", v), "hfont"); document.documentElement.style.setProperty("--fs", f.value);
 document.querySelector(".tb").append(f.el, clock(h("time", { class: "sc-clock", "aria-label": "지금 시각" })));
 let cur = 7; const m = /[#?&]u(?:nit)?=?([05-8])/.exec(location.hash + location.search); if (m) cur = +m[1];
-function draw() { $("tabs").textContent = ""; UNITS.forEach(u => $("tabs").append(h("button", { type: "button", class: u.n === cur ? "on" : "", onclick: () => { cur = u.n; draw(); } }, u.n ? `${u.n}단원 ${u.t}` : u.t))); const ls = LESSONS.filter(l => l.unit === cur), u = UNITS.find(x => x.n === cur); $("g").style.setProperty("--c", u.c); $("g").textContent = ""; ls.forEach(l => $("g").append(h("a", { href: l.url }, h("small", {}, /^\d+$/.test(l.no) ? l.no + "차시" : l.no), h("b", {}, l.title)))); }
+function draw() { $("tabs").textContent = ""; UNITS.forEach(u => $("tabs").append(h("button", { type: "button", class: u.n === cur ? "on" : "", onclick: () => { cur = u.n; draw(); } }, u.n ? `${u.n}단원 ${u.t}` : u.t))); const ls = LESSONS.filter(l => l.unit === cur && !l.hidden), u = UNITS.find(x => x.n === cur); $("g").style.setProperty("--c", u.c); $("g").textContent = ""; ls.forEach(l => $("g").append(h("a", { href: l.url }, h("small", {}, /^\d+$/.test(l.no) ? l.no + "차시" : l.no), h("b", {}, l.title)))); }
 draw();
 </script>
 </body>

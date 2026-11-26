@@ -21,7 +21,7 @@ export const LESSONS = [
   L("u7-9", 7, "9", "코일 주위의 자기장", C("u7-9")),
   L("u7-10", 7, "10", "코일이 받는 힘", C("u7-10")),
   L("u7-11", 7, "11", "전동기와 활용", C("u7-11")),
-  L("u7-12", 7, "종합", "전류의 자기 작용", "/magnetic-effect-of-current/"),
+  { ...L("u7-12", 7, "종합", "전류의 자기 작용", "/magnetic-effect-of-current/"), hidden: true }, // 목록에서 뺌 (주소로 열면 그대로 동작)
   L("u8-1", 8, "1", "시차와 연주 시차", "/stellar-parallax/"),
   L("u8-2", 8, "2", "빛의 밝기와 거리", "/light-brightness-distance/"),
   L("diary", 0, "일기", "과학수업일기", C("diary"))
