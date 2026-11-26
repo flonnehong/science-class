@@ -60,23 +60,30 @@ export const SIMS = {
     });
     box.append(seg([[false, "스위치 열기"], [true, "스위치 닫기"]], false, v => { on = v; if (v) task("on"); }), seg([[false, "전지 그대로"], [true, "전지 뒤집기"]], false, v => { flip = v; if (v && on) task("flip"); }));
   },
-  /* 4차시: 저항·전압과 전류 측정 */
+  /* 4차시: 저항·전압과 전류 측정. 전압은 체크 상자로 골라 걸고, 고르면 바로 표와 그래프에 기록된다 */
   measure(box, task) {
-    let V = 1.5, R = 15; const rec = {}; let off = 0; const I = () => V / R;
-    stage(box, 720, 240, (c, dt) => {
+    let V = 0, R = 15; const rec = {}; let off = 0; const I = () => V / R;
+    const left = h("div"), right = h("div"); box.append(h("div", { class: "side" }, left, right));
+    stage(left, 720, 240, (c, dt) => {
       off += dt * I() * 500; ln(c, [[110, 60], [610, 60], [610, 190], [110, 190], [110, 60]], "#b8bccb", 10);
-      const w = R === 15 ? 120 : 240; for (let x = 0, y = 0; x < w; x += 10, y++) ln(c, [[360 - w / 2 + x, 60 + (y % 2 ? 12 : -12)], [360 - w / 2 + x + 10, 60 + (y % 2 ? -12 : 12)]], "#c2416b", 5); T(c, R === 15 ? "짧은 니크롬선" : "긴 니크롬선", 360, 24, 18);
-      rr(c, 285, 165, 150, 50, 10, "#ffd23f", INK); T(c, `전원 ${V.toFixed(1)} V`, 360, 190, 20);
-      rr(c, 555, 100, 120, 54, 10, "#dff6ff", INK); T(c, Math.round(I() * 1000) + " mA", 615, 120, 20); T(c, "전류계", 615, 143, 14);
-      for (let i = 0; i < 14; i++) { const x = 110 + ((i * 36 + off) % 500); if (Math.abs(x - 360) > w / 2 + 6) ball(c, x, 60, 6, -1); }
+      const w = R === 15 ? 120 : 240; for (let x = 0, y = 0; x < w; x += 10, y++) ln(c, [[360 - w / 2 + x, 60 + (y % 2 ? 12 : -12)], [360 - w / 2 + x + 10, 60 + (y % 2 ? -12 : 12)]], "#c2416b", 5); T(c, R === 15 ? "짧은 니크롬선" : "긴 니크롬선", 360, 24, 20);
+      rr(c, 285, 165, 150, 50, 10, "#ffd23f", INK); T(c, `전원 ${V.toFixed(1)} V`, 360, 190, 22);
+      rr(c, 545, 98, 140, 58, 10, "#dff6ff", INK); T(c, Math.round(I() * 1000) + " mA", 615, 120, 24); T(c, "전류계", 615, 145, 15);
+      if (V) for (let i = 0; i < 14; i++) { const x = 110 + ((i * 36 + off) % 500); if (Math.abs(x - 360) > w / 2 + 6) ball(c, x, 60, 6, -1); }
+      if (!V) T(c, "아래에서 전압을 체크해 보세요", 360, 128, 18, "#58547a");
     });
-    const tb = h("table", { class: "mt" }), gv = h("canvas", { class: "simg" }), g = gv.getContext("2d"); gv.width = 640; gv.height = 420;
+    const tb = h("table", { class: "mt" }), gv = h("canvas", { class: "simg" }), g = gv.getContext("2d"); gv.width = 640; gv.height = 380;
+    const vs = [1.5, 3, 4.5, 6], chk = h("div", { class: "vchk", role: "group", "aria-label": "전압 고르기" });
+    const boxes = vs.map(v => { const inp = h("input", { type: "checkbox", onchange: () => { const k = R + "_" + v; if (inp.checked) { V = v; rec[k] = Math.round(v / R * 1000); } else { delete rec[k]; const left_ = vs.filter(x => rec[R + "_" + x] !== undefined); V = left_.length ? left_[left_.length - 1] : 0; } sync(); draw(); if (rec["15_1.5"] && rec["30_1.5"]) task("r"); if (vs.every(x => rec["30_" + x])) task("v"); } }), lab = h("label", {}, inp, v + " V"); lab.inp = inp; chk.append(lab); return lab; });
+    const sync = () => boxes.forEach((l, i) => { l.inp.checked = rec[R + "_" + vs[i]] !== undefined; l.classList.toggle("on", l.inp.checked); });
     const draw = () => {
-      const vs = [0, 1.5, 3, 4.5, 6]; tb.innerHTML = `<tr><th>전압(V)</th>${vs.map(v => `<th>${v}</th>`).join("")}</tr>` + [[15, "짧은 것(mA)"], [30, "긴 것(mA)"]].map(([r, t]) => `<tr><th>${t}</th>${vs.map(v => `<td>${v === 0 ? 0 : rec[r + "_" + v] ?? ""}</td>`).join("")}</tr>`).join("");
-      g.clearRect(0, 0, 640, 420); const X = v => 80 + v / 6 * 530, Y = a => 350 - a / 400 * 320; for (let i = 0; i <= 4; i++) { ln(g, [[80, Y(i * 100)], [610, Y(i * 100)]], "#e4e2f0", 2); T(g, String(i * 100), 70, Y(i * 100), 22, INK, "right", 400); T(g, String(i * 1.5), X(i * 1.5), 376, 22, INK, "center", 400); } ln(g, [[80, 30], [80, 350], [610, 350]], INK, 3); T(g, "전압(V)", 345, 405, 22); T(g, "전류(mA)", 110, 16, 22);
-      [[15, "#d93a47"], [30, "#2265c9"]].forEach(([r, col]) => { const p = vs.filter(v => v === 0 || rec[r + "_" + v] !== undefined).map(v => [X(v), Y(v / r * 1000)]); if (p.length > 1) ln(g, p, col, 4); p.forEach(q => { g.fillStyle = col; g.beginPath(); g.arc(q[0], q[1], 8, 0, 7); g.fill(); }); });
+      const all = [0, ...vs]; tb.innerHTML = `<tr><th>전압(V)</th>${all.map(v => `<th>${v}</th>`).join("")}</tr>` + [[15, "짧은 것(mA)"], [30, "긴 것(mA)"]].map(([r, t]) => `<tr><th>${t}</th>${all.map(v => `<td>${v === 0 ? 0 : rec[r + "_" + v] ?? ""}</td>`).join("")}</tr>`).join("");
+      g.clearRect(0, 0, 640, 380); const X = v => 80 + v / 6 * 530, Y = a => 320 - a / 400 * 290; for (let i = 0; i <= 4; i++) { ln(g, [[80, Y(i * 100)], [610, Y(i * 100)]], "#e4e2f0", 2); T(g, String(i * 100), 70, Y(i * 100), 22, INK, "right", 400); T(g, String(i * 1.5), X(i * 1.5), 344, 22, INK, "center", 400); } ln(g, [[80, 22], [80, 320], [610, 320]], INK, 3); T(g, "전압(V)", 345, 370, 22); T(g, "전류(mA)", 110, 10, 22);
+      [[15, "#d93a47"], [30, "#2265c9"]].forEach(([r, col]) => { const p = all.filter(v => v === 0 || rec[r + "_" + v] !== undefined).map(v => [X(v), Y(v / r * 1000)]); if (p.length > 1) ln(g, p, col, 4); p.forEach(q => { g.fillStyle = col; g.beginPath(); g.arc(q[0], q[1], 8, 0, 7); g.fill(); }); });
+      T(g, "● 짧은 것", 470, 40, 20, "#d93a47"); T(g, "● 긴 것", 570, 40, 20, "#2265c9");
     };
-    box.append(seg([[15, "짧은 니크롬선"], [30, "긴 니크롬선"]], 15, v => { R = v; }), h("div", { class: "controls" }, range("전압", 1.5, 6, 1.5, 1.5, " V", v => { V = v; }), h("button", { type: "button", class: "tg pri", onclick: () => { rec[R + "_" + V] = Math.round(I() * 1000); draw(); if (rec["15_1.5"] && rec["30_1.5"]) task("r"); if ([1.5, 3, 4.5, 6].every(v => rec["30_" + v])) task("v"); } }, "표에 기록")), h("div", { class: "duo sm" }, tb, gv)); draw();
+    left.append(seg([[15, "짧은 니크롬선"], [30, "긴 니크롬선"]], 15, v => { R = v; const on = vs.filter(x => rec[R + "_" + x] !== undefined); V = on.length ? on[on.length - 1] : 0; sync(); }), h("div", { class: "controls" }, h("b", {}, "전압 고르기"), chk), h("p", { class: "hint" }, "체크하면 그 전압을 걸고 전류를 재어 표와 그래프에 적어요. 체크를 풀면 지워져요."));
+    right.append(tb, gv); draw();
   },
   /* 5차시: 옴의 법칙 */
   ohm(box, task) {
@@ -89,17 +96,24 @@ export const SIMS = {
     });
     box.append(h("div", { class: "controls" }, range("전압", 1.5, 9, 1.5, 3, " V", v => { V = v; seen.v.add(v); if (seen.v.size > 1) task("v"); }), range("저항", 5, 30, 5, 10, " Ω", v => { R = v; seen.r.add(v); if (seen.r.size > 1) task("r"); })));
   },
-  /* 6차시: 직렬·병렬 */
+  /* 6차시: 직렬·병렬. 회로 옆에 저항·전압·전류로 밝기를 설명한다 */
   bulbs(box, task) {
-    let m = "one", cut = false;
-    stage(box, 720, 290, c => {
+    let m = "one", cut = false; const why = h("div", { class: "why", "aria-live": "polite" }), left = h("div");
+    const W = {
+      one: ["전구 1개 (비교 기준)", "<li>전지의 전압이 전구 하나에 <b>모두</b> 걸려요.</li><li>이때의 밝기를 기준으로 직렬·병렬과 비교해 봐요.</li>", "연결이 끊어지면 전류가 흐를 길이 없어 꺼져요."],
+      ser: ["직렬연결: 왜 어두워질까?", "<li><b>저항</b>: 전구(저항) 2개를 한 줄로 이어 회로 전체의 저항이 전구 1개일 때보다 <b>커져요</b> (2배).</li><li><b>전류</b>: 전지의 전압은 그대로인데 전체 저항이 커지므로 <b>전류의 세기 = 전압 ÷ 저항</b>에 따라 회로에 흐르는 전류가 <b>약해져요</b> (1/2배). 두 전구에 흐르는 전류의 세기는 같아요.</li><li><b>전압</b>: 전지의 전압이 두 전구에 <b>나누어</b> 걸려 전구 하나에 걸리는 전압도 작아져요 (1/2배).</li></ol><p>➡ 각 전구에 흐르는 전류가 약해져서 전구 1개일 때보다 <b>어두워요</b>.</p><ol hidden>", "전류가 흐르는 길이 <b>하나뿐</b>이라, 한 곳이 끊기면 회로 전체에 전류가 흐르지 않아 <b>모든 전구가 꺼져요</b>."],
+      par: ["병렬연결: 왜 밝기가 그대로일까?", "<li><b>전압</b>: 두 전구가 각각 전지에 바로 연결되어 전구마다 전지의 전압이 <b>그대로</b> 걸려요.</li><li><b>저항</b>: 전구 하나하나의 저항은 전구 1개일 때와 같아요. (길이 둘로 갈라져 회로 <b>전체</b>의 저항은 작아져요.)</li><li><b>전류</b>: 전압도 저항도 같으니 <b>전류의 세기 = 전압 ÷ 저항</b>에 따라 각 전구에 흐르는 전류도 전구 1개일 때와 <b>같아요</b>. (전지에서 나오는 전체 전류는 2배)</li></ol><p>➡ 그래서 각 전구의 밝기가 전구 1개일 때와 <b>같아요</b>.</p><ol hidden>", "끊어진 전구의 길만 막히고, 다른 길에는 여전히 전지의 전압이 걸려 전류가 흘러요. 그래서 <b>나머지 전구는 켜져 있어요</b>."]
+    };
+    const say = () => { const [t, body, c] = W[m]; why.innerHTML = `<b class="t">${t}</b>` + (cut ? `<p>✂ ${c}</p>` : `<ol>${body}</ol>`); };
+    stage(left, 720, 290, c => {
       const b = { one: cut ? 0 : 1, ser: cut ? 0 : .3, par: 1 }[m];
       if (m === "par") { ln(c, [[160, 40], [560, 40]], INK); ln(c, [[160, 130], [560, 130]], INK); ln(c, [[160, 40], [160, 230], [560, 230], [560, 40]], INK); battery(c, 360, 230); bulb(c, 360, 40, 1); bulb(c, 360, 130, cut ? 0 : 1, cut); if (cut) { ln(c, [[400, 130], [450, 130]], "#fffdf5", 10); T(c, "✂", 425, 130, 24); } }
       else { ln(c, [[160, 70], [560, 70], [560, 230], [160, 230], [160, 70]], INK); battery(c, 360, 230); if (m === "one") bulb(c, 360, 70, b, cut); else { bulb(c, 270, 70, b); bulb(c, 450, 70, cut ? 0 : b, cut); } if (cut) { ln(c, [[500, 70], [546, 70]], "#fffdf5", 10); T(c, "✂", 523, 70, 24); } }
-      T(c, { one: cut ? "전류가 흐르지 않아요" : "전구 1개", ser: cut ? "길이 하나뿐이라 모두 꺼져요" : "직렬연결: 1개일 때보다 어두워요", par: cut ? "다른 길로 전류가 흘러 나머지는 켜져 있어요" : "병렬연결: 1개일 때와 밝기가 같아요" }[m], 360, 276, 19, "#0b6b33");
+      T(c, { one: cut ? "전류가 흐르지 않아요" : "전구 1개", ser: cut ? "길이 하나뿐이라 모두 꺼져요" : "직렬연결: 1개일 때보다 어두워요", par: cut ? "나머지 전구는 켜져 있어요" : "병렬연결: 1개일 때와 밝기가 같아요" }[m], 360, 276, 21, "#0b6b33");
     });
-    const cb = h("button", { type: "button", class: "tg", onclick: () => { cut = !cut; cb.classList.toggle("on", cut); cb.textContent = cut ? "다시 연결하기" : "전구 1개의 연결 끊기"; if (cut && m !== "one") task(m); } }, "전구 1개의 연결 끊기");
-    box.append(seg([["one", "전구 1개"], ["ser", "직렬연결"], ["par", "병렬연결"]], "one", v => { m = v; cut = false; cb.classList.remove("on"); cb.textContent = "전구 1개의 연결 끊기"; }), h("div", { class: "controls" }, cb));
+    const cb = h("button", { type: "button", class: "tg", onclick: () => { cut = !cut; cb.classList.toggle("on", cut); cb.textContent = cut ? "다시 연결하기" : "전구 1개의 연결 끊기"; say(); if (cut && m !== "one") task(m); } }, "전구 1개의 연결 끊기");
+    left.append(seg([["one", "전구 1개"], ["ser", "직렬연결"], ["par", "병렬연결"]], "one", v => { m = v; cut = false; cb.classList.remove("on"); cb.textContent = "전구 1개의 연결 끊기"; say(); }), h("div", { class: "controls" }, cb));
+    box.append(h("div", { class: "side" }, left, why)); say();
   },
   /* 7차시: 전기 주전자 비교 */
   kettle(box, task) {

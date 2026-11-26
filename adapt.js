@@ -23,9 +23,9 @@ function collect() {
   return out;
 }
 run({
-  lesson: id, main, titles, prefix: q.get("p") || "",
+  lesson: id, main, titles, prefix: q.get("p") || "", zoom: 1.1,
   done: i => { const a = [...secs[i].querySelectorAll(".quiz .q")]; return a.length ? a.every(x => x.querySelector(".correct,.right")) : null; },
-  need: () => "모든 문제를 풀어 보세요. (다음 장에 더 있을 수 있어요)",
+  need: () => "모든 문제를 풀어 보세요.",
   collect,
   ready: c => { if (c.demo) return; fields().forEach((e, i) => { const v = c.saved(name(e, i)); if (v && !e.value) { if (e.tagName === "SELECT") { const o = [...e.options].find(x => clean(x.textContent) === v); if (o) e.value = o.value; } else e.value = v; e.dispatchEvent(new Event("input", { bubbles: true })); e.dispatchEvent(new Event("change", { bubbles: true })); } }); }
 });

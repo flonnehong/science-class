@@ -11,9 +11,10 @@ import { lessonOf, HOME } from "./catalog.js";
  * o.collect() → [{k,l,v}] 저장할 답
  * o.ready(ctx) 수락된 뒤 한 번. ctx.poll(q, cb), ctx.vote(q, i), ctx.saved(k)
  * o.prefix  이 수업이 쓰는 localStorage 앞글자 (다른 학생이 쓰면 지움)
+ * o.zoom    기본 글자 배율 (예전 수업 자료는 1.1)
  */
 export function run(o) {
-  const L = lessonOf(o.lesson), demo = new URLSearchParams(location.search).get("demo") === "1";
+  const L = lessonOf(o.lesson), qs = new URLSearchParams(location.search), demo = qs.get("demo") === "1", Z = o.zoom || 1;
   const secs = [...o.main.querySelectorAll(":scope > section")];
   document.documentElement.classList.add("sc-on"); document.documentElement.classList.remove("sc-wait");
   const $bar = h("header", { class: "sc-bar" }), $stage = h("div", { class: "sc-stage" }), $foot = h("footer", { class: "sc-foot" }), $gate = h("div", { class: "sc-gate" });
@@ -27,18 +28,21 @@ export function run(o) {
   $stage.append($scale); $scale.append(o.main); o.main.classList.add("sc-main");
   const dots = secs.map((s, i) => { const b = h("button", { type: "button", title: o.titles[i], "aria-label": o.titles[i], onclick: () => { if (i <= limit()) go(i, 0); } }, String(i + 1)); $steps.append(b); return b; });
 
-  /* ---------- 쪽 나누기 ---------- */
+  /* ---------- 쪽 나누기: 한 단계는 한 화면에. 너무 작아질 때(작은 휴대폰 등)만 여러 장으로 나눈다 ---------- */
+  const ONE = 0.66, S = () => font.value * Z;
   let step = 0, page = 0, pages = [[]], k = 1, ready = demo, boxes = [];
-  const SPLIT = ".card,.quiz,.grid2,.split,#scenes,#quizBox,ol,ul,.concept,.blocks";
+  const SPLIT = ".card,.quiz,.grid2,.split,#scenes,#quizBox,ol,ul,.concept,.blocks,.two,.cols";
   const vis = e => e.nodeType === 1 && e.getClientRects().length > 0 && e.getBoundingClientRect().height > 1;
   function paginate(keep) {
     const sec = secs[step]; if (!sec) return;
     const firstNow = keep !== false && pages[page] && pages[page][0];
     secs.forEach((s, i) => s.classList.toggle("sc-off", i !== step));
     sec.querySelectorAll(".sc-hide").forEach(e => e.classList.remove("sc-hide"));
-    const s = font.value, W = $stage.clientWidth, H = $stage.clientHeight; if (!W || !H) return;
-    const wide = Math.min(1120, W / s - 24); $scale.style.width = wide + "px"; $scale.style.transform = "none"; k = s;
-    const budget = H / s - 12, at = []; boxes = [];
+    const s = S(), W = $stage.clientWidth, H = $stage.clientHeight; if (!W || !H) return;
+    const wide = Math.min(1240, W / s - 24); $scale.style.width = wide + "px"; $scale.style.transform = "none"; k = s;
+    const kOne = Math.min(s, (H - 4) / Math.max(1, sec.offsetHeight), (W - 4) / Math.max(1, $scale.offsetWidth));
+    if (kOne >= s * ONE) { pages = [[...sec.children].filter(vis)]; boxes = []; page = 0; showPage(); return; }
+    const budget = (H / s - 12) / 0.85, at = []; boxes = [];
     (function walk(el) {
       [...el.children].filter(vis).forEach(c => {
         const hgt = c.getBoundingClientRect().height, kids = [...c.children].filter(vis);
@@ -49,6 +53,7 @@ export function run(o) {
     const r = at.map(e => e.getBoundingClientRect()), glue = i => {
       const a = at[i], b = at[i + 1]; if (!b) return false;
       if (a.matches("h1,h2,h3,h4,.tag,.sc-with")) return true;
+      if (a.matches("figure,.pic") && b.matches("p,figcaption,h3,h4,.question") && r[i + 1].bottom - r[i].top < budget) return true; // 그림과 바로 뒤 설명은 한 장에
       return b.matches(".controls,.readout,.zones,.todo,.msg,.opts") && !!(a.matches("canvas,.scroll,.controls,.readout,.todo") || a.querySelector("canvas"));
     };
     pages = [[]]; let top = null, i = 0;
@@ -74,14 +79,14 @@ export function run(o) {
     dispatchEvent(new Event("sc-page"));
   }
   function fit() {
-    const sec = secs[step], s = font.value, H = $stage.clientHeight, W = $stage.clientWidth;
+    const sec = secs[step], s = S(), H = $stage.clientHeight, W = $stage.clientWidth;
     const hh = sec.offsetHeight, ww = $scale.offsetWidth; if (!hh) return;
     k = Math.max(0.3, Math.min(s, (H - 4) / hh, (W - 4) / ww));
     $scale.style.transform = `translate(${Math.max(0, (W - ww * k) / 2)}px,${Math.max(2, Math.min(40, (H - hh * k) / 2))}px) scale(${k})`;
   }
   let tm = null; const later = (f, ms) => { clearTimeout(tm); tm = setTimeout(f, ms); };
   new ResizeObserver(() => later(() => paginate(), 120)).observe($stage);
-  const ro = new ResizeObserver(() => { fit(); if (k < font.value * 0.62 && pages[page].length > 1) later(() => paginate(), 200); }); secs.forEach(s => ro.observe(s));
+  const ro = new ResizeObserver(() => { fit(); if (k < S() * ONE * 0.97 && pages[page].length > 1) later(() => paginate(), 200); }); secs.forEach(s => ro.observe(s));
   new MutationObserver(ms => { if (ms.some(m => m.type === "childList" && [...m.addedNodes].some(n => n.nodeType === 1) && m.target.closest && m.target.closest(".quiz,#scenes,.split"))) later(() => paginate(), 150); }).observe(o.main, { childList: true, subtree: true });
   if (document.fonts) document.fonts.ready.then(() => paginate());
   addEventListener("load", () => paginate());
@@ -120,7 +125,7 @@ export function run(o) {
   addEventListener("keydown", e => { if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) || !ready) return; if (e.key === "PageDown") { e.preventDefault(); next(); } if (e.key === "PageUp") { e.preventDefault(); prev(); } });
 
   /* ---------- 시연(저장 안 함) ---------- */
-  if (demo) { $who.textContent = "미리 보기"; $net.hidden = true; $gate.hidden = true; if (o.ready) o.ready({ demo: true, poll() {}, vote() {}, saved: () => undefined }); paginate(); return { refresh: foot }; }
+  if (demo) { $who.textContent = "미리 보기"; $net.hidden = true; $gate.hidden = true; if (o.ready) o.ready({ demo: true, poll() {}, vote() {}, saved: () => undefined }); const st0 = +qs.get("step") || 0; if (st0 > 0) go(Math.min(last, st0), 0); else paginate(); return { refresh: foot }; }
 
   /* ---------- 로그인 ---------- */
   const fb = connect("student"); let uid = null, me = null, path = null, offs = [], accepted = false, sid = null, saved = {}, offsAll = [];
