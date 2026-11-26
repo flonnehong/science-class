@@ -131,3 +131,7 @@ export const DATA = {
     { t: "③ 나의 이해도", b: [poll("level", "오늘 수업을 얼마나 이해했나요?", ["아주 잘 이해했다", "잘 이해했다", "보통이다", "조금 어려웠다", "많이 어려웠다"]), short("feel", "오늘 수업 한 줄 느낌", "한 줄 느낌")] }
   ]
 };
+
+/* 5·6·8단원 */
+import { DATA2 } from "./data2.js";
+Object.assign(DATA, DATA2);

@@ -177,3 +177,4 @@ export const SIMS = {
     box.append(seg([[0, "전류 끄기"], [1, "전류 약하게"], [2, "전류 세게"]], 0, v => { I = v; if (v) task("i" + v); }), seg([[1, "보통 자석"], [2, "센 자석"]], 1, v => { M = v; if (v === 2 && I) task("m"); }), seg([[true, "전류의 방향이 주기적으로 바뀜"], [false, "바뀌지 않음"]], true, v => { comm = v; if (!v) task("c"); if (v) { th = .5; } }));
   }
 };
+export { stage, T, rr, ball, ln, arrow, seg, range, bulb, P, N, INK };

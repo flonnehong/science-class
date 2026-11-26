@@ -6,7 +6,7 @@ import { connect, ls, day, h, clock, fontControl, signInWithEmailAndPassword, cr
 import { UNITS, LESSONS, HOME } from "./catalog.js";
 import { DATA } from "./data.js";
 const ID = "teacher@science-class.example.com", BRIDGE = "https://script.google.com/macros/s/AKfycbyhtaCm2c_xI7PT_7rsvYYks-WDyg6GFWry774lU-Wkgw5XJGoSRoX5CqwYZ-2jYbMwYw/exec";
-const STEPS = { "u5-1": 6, "u6-1": 7, "u7-2": 6, "u7-12": 6, "u8-1": 6, "u8-2": 6 };
+const STEPS = { "u5-9": 6, "u6-9": 7, "u7-2": 6, "u7-12": 6, "u8-10": 6, "u8-11": 6 };
 const stepsOf = id => DATA[id] ? DATA[id].length : STEPS[id] || 5, titlesOf = id => DATA[id] ? DATA[id].map(s => s.t) : null;
 const noOf = l => /^\d+$/.test(l.no) ? l.no + "차시" : l.no;
 const fb = connect("teacher"), R = p => ref(fb.db, p), $ = h("main", { class: "tp" }); let offs = [], bridge = "";
