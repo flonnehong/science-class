@@ -43,7 +43,7 @@ async function enter() { try { if (!(await get(R("cfg/admins/" + fb.auth.current
 function lessons() {
   clear(); $.className = "tp scroll"; crumb.textContent = "차시 선택";
   view(h("div", { class: "pgt" }, h("h1", {}, "오늘 수업할 차시를 골라 주세요"), h("span", { class: "sp" }), btn("QR·주소", qr), btn(bridge ? "시트 연결됨 ✓" : "시트 연결하기", pair, bridge ? "" : "warn"), btn("로그아웃", async () => { clear(); await signOut(fb.auth); login(); })),
-    ...[5, 6, 7, 8, 0].map(n => { const u = UNITS.find(x => x.n === n), ls_ = LESSONS.filter(l => l.unit === n && !l.hidden); return h("section", { class: "unit", style: `--c:${u.c}` }, h("h2", {}, n ? `${n}단원 · ${u.t}` : u.t), h("div", { class: "lgrid" }, ls_.map(l => btn([h("small", {}, noOf(l)), h("b", {}, l.title)], () => lesson(l))))); }));
+    ...[1, 2, 3, 4, 5, 6, 7, 8, 0].map(n => { const u = UNITS.find(x => x.n === n), ls_ = LESSONS.filter(l => l.unit === n && !l.hidden); return h("section", { class: "unit", style: `--c:${u.c}` }, h("h2", {}, n ? `${n}단원 · ${u.t}` : u.t), h("div", { class: "lgrid" }, ls_.map(l => btn([h("small", {}, noOf(l)), h("b", {}, l.title)], () => lesson(l))))); }));
 }
 
 /* ---------- 차시 화면 ---------- */

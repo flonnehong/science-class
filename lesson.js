@@ -4,7 +4,8 @@ import { lessonOf } from "./catalog.js";
 import { DATA } from "./data.js";
 import { SIMS as S1 } from "./sims.js";
 import { SIMS2 } from "./sims2.js";
-const SIMS = { ...S1, ...SIMS2 };
+import { SIMS3 } from "./sims3.js";
+const SIMS = { ...S1, ...SIMS2, ...SIMS3 };
 const id = new URLSearchParams(location.search).get("l") || "", D = DATA[id], L = lessonOf(id);
 if (!D || !L) location.replace("./");
 else {

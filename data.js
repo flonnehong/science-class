@@ -135,3 +135,6 @@ export const DATA = {
 /* 5·6·8단원 */
 import { DATA2 } from "./data2.js";
 Object.assign(DATA, DATA2);
+/* 1~4단원 */
+import { DATA3 } from "./data3.js";
+Object.assign(DATA, DATA3);
